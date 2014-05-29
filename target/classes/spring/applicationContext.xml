@@ -19,8 +19,4 @@
     	<property name="indexDir" value="/Users/fuhe-apple-02/temp/index"></property>
     </bean>
     
-    <bean name="indexSearch" class="com.search.lucence.IndexSearch">
-    	<property name="indexDir" value="/Users/fuhe-apple-02/temp/index"></property>
-    </bean>
-
 </beans>

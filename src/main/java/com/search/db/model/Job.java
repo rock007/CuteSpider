@@ -10,9 +10,13 @@ public class Job {
 	
 	private String desc;
 	
+	private String descHtml;
+	
 	private String companyName;
 	
 	private String companyDesc;
+	
+	private String companyDescHtml;
 	
 	private String createDate;
 	
@@ -110,5 +114,21 @@ public class Job {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public String getDescHtml() {
+		return descHtml;
+	}
+
+	public void setDescHtml(String descHtml) {
+		this.descHtml = descHtml;
+	}
+
+	public String getCompanyDescHtml() {
+		return companyDescHtml;
+	}
+
+	public void setCompanyDescHtml(String companyDescHtml) {
+		this.companyDescHtml = companyDescHtml;
 	}
 }

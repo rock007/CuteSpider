@@ -56,11 +56,23 @@ public class JobIndexFile {
 			doc.add(new StringField("title", jobs.get(i).getTitle(), Store.YES));
 			doc.add(new TextField("companyDesc", jobs.get(i).getCompanyDesc(),
 					Store.YES));
-			doc.add(new StringField("companyName",
-					jobs.get(i).getCompanyName(), Store.YES));
-			doc.add(new TextField("desc", jobs.get(i).getDesc(), Store.YES));
-			doc.add(new StringField("salary", jobs.get(i).getSalary(),
+			doc.add(new TextField("companyDescHtml", jobs.get(i).getCompanyDescHtml(),
 					Store.YES));
+			
+			if(jobs.get(i).getCompanyName()!=null){
+				doc.add(new StringField("companyName",
+					jobs.get(i).getCompanyName(), Store.YES));
+			}
+			
+			doc.add(new TextField("desc", jobs.get(i).getDesc(), Store.YES));
+			doc.add(new TextField("descHtml", jobs.get(i).getDescHtml(), Store.YES));
+			
+			
+			if(jobs.get(i).getSalary()!=null){
+				doc.add(new StringField("salary", jobs.get(i).getSalary(),
+						Store.YES));
+			}
+			
 			doc.add(new StringField("source", jobs.get(i).getSource(),
 					Store.YES));
 			doc.add(new StringField("url", jobs.get(i).getUrl(), Store.YES));

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -18,9 +19,16 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.SearcherFactory;
+import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
+import org.apache.lucene.search.highlight.TextFragment;
+import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
@@ -29,114 +37,129 @@ import org.slf4j.LoggerFactory;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import com.search.comm.ResultModel;
+import com.search.comm.StringUtil;
 import com.search.db.model.Job;
 
 public class IndexSearch {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IndexSearch.class);
 	
-	private String indexDir;
+	//private String indexDir;
 	
-	private Directory directory;  
-    private static IndexReader reader;  
+	private static Directory directory;
+	
+	private static SearcherManager mgr;
+	private  SearcherFactory searcherFactory;
+	
+    //private  IndexReader reader;  
     
-	private IndexSearcher getIndexSearcher() {
+    public IndexSearch(String indexDir){
+    	
+    	try {  
 
-		try {
-			final Directory dir = FSDirectory.open(new File(indexDir));
-			if (reader == null) {
-				reader = DirectoryReader.open(dir);
-			} else {
+			if (mgr == null) {
+				directory = FSDirectory.open(new File(indexDir));
 
-				reader.addReaderClosedListener(new ReaderClosedListener() {
-					@Override
-					public void onClose(IndexReader reader) {
-						try {
-							IndexReader ir = DirectoryReader.open(dir);
-							if (ir != null) {
+				searcherFactory = new SearcherFactory();
 
-								reader.close(); // 关闭原reader
-								reader = ir; // 赋予新reader
-							}
-						} catch (Exception exc) {
-							logger.error("getIndexSearcher", exc);
-						}
-					}
-				});
+				mgr = new SearcherManager(directory, null);
 			}
-			return new IndexSearcher(reader);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
+        } catch (Exception e) {  
+            e.printStackTrace();  
+            logger.error("初始化SearchManager", e);
+        }
+    }
+
 	public ResultModel<Job>  doSearch(HashMap<String,String> map,int page,int pageMaxCount) throws Exception {
 	    
 		 	long  begin=System.currentTimeMillis();
 		 	String debugStr="";
 			ResultModel<Job> retsult=new ResultModel<Job>();
 		
-	        IndexSearcher searcher=getIndexSearcher();
+	        //IndexSearcher searcher=getIndexSearcher();
+	        IndexSearcher searcher=mgr.acquire();
 	        
-	        //Analyzer analyzer=new StandardAnalyzer(Version.LUCENE_CURRENT);
-	        Analyzer analyzer=new IKAnalyzer(true);
-	        String[] fields=new String[]{"title","companyName","weight","desc","source"};
-	        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
-	         
-	        String  keyword=map.get("keyword");
-	        Query query=multiQParser.parse(keyword);
-	        
-	        //page
-	        TopScoreDocCollector topCollector=TopScoreDocCollector.create(reader.maxDoc(), false);
-	        searcher.search(query, topCollector);
-	        System.out.println("一共有多少条记录命中:"+topCollector.getTotalHits());
-	        
-	        int start = (page - 1) * pageMaxCount;//start:开始条数   pageMaxCount：显示多少条
-	        ScoreDoc[] scoreDocs= topCollector.topDocs(start, pageMaxCount).scoreDocs;
+	        try {
 
-	        long  end=System.currentTimeMillis();
-	        debugStr+="搜索共耗时:"+(end-begin)+" 毫秒";
-	        
-	        logger.debug(debugStr);
-	       
-	        retsult.setMessage(debugStr);
-	        retsult.setCode(1);
-	        retsult.setPageIndex(page);
-	        retsult.setPageCount(topCollector.getTotalHits());
-	        
-	        List<Job> jobs=new ArrayList<Job>();
-	        for (int i = 0; i < scoreDocs.length; i++) {
-	        	   Document doc = searcher.doc(scoreDocs[i].doc);
-	        	   
-		            logger.debug("title===="+doc.get("title"));
-		            logger.debug("id--" + scoreDocs[i].doc + "---scors--" + scoreDocs[i].score+"---index--"+scoreDocs[i].shardIndex);
-		            
-		            Job oneJob=new Job();
-		            
-		            //oneJob.setJid(Integer.parseInt(doc.get("jid")));
-		            oneJob.setCompanyDesc(doc.get("companyDesc"));
-		            oneJob.setCompanyName(doc.get("companyName"));
-		            oneJob.setCreateDate(doc.get("title"));
-		            
-		            String text = doc.get("desc");  
-		              
-		            oneJob.setDesc(text);
-		            //oneJob.setJid(doc.get("title"));
-		            oneJob.setSalary(doc.get("salary"));
-		            oneJob.setSource(doc.get("source"));
-		            oneJob.setTitle(doc.get("title"));
-		            oneJob.setUrl(doc.get("url"));
-		            
-		            jobs.add(oneJob);
-	         }
-	        
-	        reader.close();
-	        retsult.setList(jobs);
+		        //Analyzer analyzer=new StandardAnalyzer(Version.LUCENE_CURRENT);
+		        Analyzer analyzer=new IKAnalyzer(true);
+		        String[] fields=new String[]{"title","companyName","weight","desc","source"};
+		        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
+		         
+		        String  keyword=map.get("keyword");
+		        Query query=multiQParser.parse(keyword);
+		        
+		        //page
+		        TopScoreDocCollector topCollector=TopScoreDocCollector.create(searcher.getIndexReader().maxDoc(), false);
+		        searcher.search(query, topCollector);
+		        System.out.println("一共有多少条记录命中:"+topCollector.getTotalHits());
+		        
+		        int start = (page - 1) * pageMaxCount;//start:开始条数   pageMaxCount：显示多少条
+		        ScoreDoc[] scoreDocs= topCollector.topDocs(start, pageMaxCount).scoreDocs;
+
+		        long  end=System.currentTimeMillis();
+		        debugStr+="搜索共耗时:"+(end-begin)+" 毫秒";
+		        
+		        logger.debug(debugStr);
+		       
+		        retsult.setMessage(debugStr);
+		        retsult.setCode(1);
+		        retsult.setPageIndex(page);
+		        retsult.setPageCount(topCollector.getTotalHits());
+		        
+		        SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
+		        Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
+		        
+		        List<Job> jobs=new ArrayList<Job>();
+		        for (int i = 0; i < scoreDocs.length; i++) {
+		        	   Document doc = searcher.doc(scoreDocs[i].doc);
+		        	   
+			            logger.debug("title===="+doc.get("title"));
+			            logger.debug("id--" + scoreDocs[i].doc + "---scors--" + scoreDocs[i].score+"---index--"+scoreDocs[i].shardIndex);
+			            
+			            Job oneJob=new Job();
+			            
+			            //oneJob.setJid(Integer.parseInt(doc.get("jid")));
+			            oneJob.setCompanyDesc(doc.get("companyDesc"));
+			            oneJob.setCompanyName(doc.get("companyName"));
+			            oneJob.setCreateDate(doc.get("title"));
+			            
+			            String text = doc.get("desc");  
+			            //标红
+			            TokenStream tokenStream = TokenSources.getAnyTokenStream(searcher.getIndexReader(),scoreDocs[i].doc , "desc", analyzer);
+			            TextFragment[] frag = highlighter.getBestTextFragments(tokenStream, text, false, 300);
+			            
+			            String brief = "";
+			            for (int j = 0; j < frag.length; j++) {
+			              if ((frag[j] != null) && (frag[j].getScore() > 0)) {
+			                //System.out.println((frag[j].toString()));
+			                brief += frag[j].toString();
+			              }
+			            }
+			            
+			            oneJob.setDescHtml(doc.get("descHtml"));
+			            oneJob.setDesc(brief);
+			           
+			            //oneJob.setJid(doc.get("title"));
+			            oneJob.setSalary(doc.get("salary"));
+			            oneJob.setSource(doc.get("source"));
+			            oneJob.setTitle(doc.get("title"));
+			            oneJob.setUrl(doc.get("url"));
+			            
+			            jobs.add(oneJob);
+		         }
+		        retsult.setList(jobs);
+	        	
+	        }
+	        finally {
+	        	mgr.release(searcher);
+	        }
+	        searcher = null;
 	        
 	        return retsult;
-	    
 	}
+
+	
 	
 	public ResultModel<Job>  doSearchV2(HashMap<String,String> map) throws Exception {
 	    
@@ -145,8 +168,7 @@ public class IndexSearch {
 	 
 		ResultModel<Job> retsult=new ResultModel<Job>();
 	
-        Directory dir=FSDirectory.open(new File(indexDir));
-        IndexReader reader=DirectoryReader.open(dir);
+        IndexReader reader=DirectoryReader.open(directory);
         IndexSearcher searcher=new IndexSearcher(reader);
         
         /*** demo1
@@ -222,9 +244,9 @@ public class IndexSearch {
     
 	}
 	
-    public void searchPageByAfter(String expr, int pageIndex, int pageSize){  
+    public void searchPageByAfter(String expr, int pageIndex, int pageSize) throws Exception{  
     	
-        IndexSearcher searcher = this.getIndexSearcher();  
+        IndexSearcher searcher = mgr.acquire();  
         
         QueryParser parser = new QueryParser(Version.LUCENE_48, "mycontent", new StandardAnalyzer(Version.LUCENE_48));  
         try {  
@@ -249,15 +271,4 @@ public class IndexSearch {
               
         }  
     }  
-
-
-
-	public String getIndexDir() {
-		return indexDir;
-	}
-
-	public void setIndexDir(String indexDir) {
-		this.indexDir = indexDir;
-	}
-
 }

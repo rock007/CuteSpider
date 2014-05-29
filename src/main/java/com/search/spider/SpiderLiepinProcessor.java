@@ -67,16 +67,6 @@ public class SpiderLiepinProcessor implements PageProcessor{
 		Html pageHtml=page.getHtml();
 		Selectable pageRefLinks= page.getHtml().links();
 		//需要检查链接是否正确 eg:http://www.liepin.com/zhaopin/www.liepin.com/zhaopin/yuleyundong_shanghai/
-		/***
-		for(String m: pageRefLinks.all()){
-			
-			if(m.indexOf("www.liepin.com/zhaopin")>8){
-				
-				m=m.replaceAll("http://www.liepin.com/zhaopin/", "");
-			}
-			
-		}
-		***/
 		
 		//1.页面是否已经存在过
 		if(doneLinks.containsKey(pageUrl)){

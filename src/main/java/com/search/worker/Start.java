@@ -1,5 +1,7 @@
 package com.search.worker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -17,6 +19,14 @@ public class Start {
 		 
 		 final SpiderLiepinProcessor liepinProcessor = applicationContext.getBean(SpiderLiepinProcessor.class);
 		
-		 liepinProcessor.doWork();
+		 try{
+			 liepinProcessor.doWork();
+			 
+			 System.out.print("work finish!");
+			 
+		 }catch(Exception ex){
+			 
+			 ex.printStackTrace();
+		 }
 	}
 }

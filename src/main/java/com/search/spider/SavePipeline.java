@@ -50,12 +50,20 @@ public class SavePipeline implements  Pipeline{
 			logger.debug(url+":已经存在，不处理，跳过,count:"+existJobs.size());
 			return;
 		}
-		 
+		
+		String companyDescHtml=(String)resultItems.get("companyDesc");
+		String jobDescHtml=(String)resultItems.get("descr");
+		
 		m.setTitle((String)resultItems.get("jobTitle"));
-		m.setCompanyDesc((String)resultItems.get("companyDesc"));
+		m.setCompanyDesc(StringUtil.html2text(companyDescHtml));
+		m.setCompanyDescHtml(companyDescHtml);
+		
 		m.setCompanyName((String)resultItems.get("company"));
 		m.setCreateDate(StringUtil.Date2String());
-		m.setDesc((String)resultItems.get("descr"));
+		
+		m.setDesc(StringUtil.html2text(jobDescHtml));
+		m.setDescHtml(jobDescHtml);
+		
 		m.setSalary((String)resultItems.get("salary"));
 		m.setSource("liepin");
 		m.setUpdateDate(StringUtil.Date2String());

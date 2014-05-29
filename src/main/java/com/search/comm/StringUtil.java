@@ -5,6 +5,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Pattern;
 
+import org.jsoup.Jsoup;
+
 public class StringUtil {
 
 	public static  DateFormat formatStyle1 = new SimpleDateFormat("yyyy-MM-dd");        
@@ -56,5 +58,9 @@ public class StringUtil {
 	public static String Date2String(){
 		
 		return date2String(new Date(),formatStyle1);
+	}
+	
+	public static String html2text(String html) {
+	    return Jsoup.parse(html).text();
 	}
 }
