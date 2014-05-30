@@ -118,6 +118,7 @@ public class SpiderLiepinProcessor implements PageProcessor{
 			page.putField("companyDesc", companyDesc);
 			
 			page.putField("url", pageUrl);
+			page.putField("source", "liepin");
 		}else{
 			
 			page.setSkip(true);

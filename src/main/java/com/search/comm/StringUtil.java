@@ -2,7 +2,9 @@ package com.search.comm;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
@@ -62,5 +64,15 @@ public class StringUtil {
 	
 	public static String html2text(String html) {
 	    return Jsoup.parse(html).text();
+	}
+	
+	
+	public static Date getBeforeDate(Date date, Integer daysOftotalTransAmount) {
+		    Calendar cal = new GregorianCalendar();
+	        cal.setTime(date);
+	        cal.add(Calendar.DATE, -daysOftotalTransAmount);
+	       
+	        date = cal.getTime();
+	        return date;
 	}
 }

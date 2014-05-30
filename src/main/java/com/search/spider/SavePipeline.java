@@ -65,7 +65,8 @@ public class SavePipeline implements  Pipeline{
 		m.setDescHtml(jobDescHtml);
 		
 		m.setSalary((String)resultItems.get("salary"));
-		m.setSource("liepin");
+		//m.setSource("liepin");
+		m.setSource((String)resultItems.get("source"));
 		m.setUpdateDate(StringUtil.Date2String());
 		m.setUrl((String)resultItems.get("url"));
 		

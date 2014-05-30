@@ -132,7 +132,6 @@ public class IndexSearch {
 			            String brief = "";
 			            for (int j = 0; j < frag.length; j++) {
 			              if ((frag[j] != null) && (frag[j].getScore() > 0)) {
-			                //System.out.println((frag[j].toString()));
 			                brief += frag[j].toString();
 			              }
 			            }
