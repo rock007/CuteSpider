@@ -16,6 +16,9 @@ import org.apache.lucene.index.IndexReader.ReaderClosedListener;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.FuzzyQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -76,18 +79,62 @@ public class IndexSearch {
 		 	String debugStr="";
 			ResultModel<Job> retsult=new ResultModel<Job>();
 		
-	        //IndexSearcher searcher=getIndexSearcher();
 	        IndexSearcher searcher=mgr.acquire();
 	        
 	        try {
+	        	String  keyword=map.get("keyword");
+	        	String address=map.get("address");
+	        	String salary=map.get("salary");
+	        	String source =map.get("source");
+	        	String company=map.get("comapny");
+	        	
+	        	BooleanQuery query = new BooleanQuery();
+	        	
+	        	if(keyword==null||"".equals(keyword)){
+				
+	        		retsult.setMessage("keyword is empty!");
+			        retsult.setCode(1);
+			        retsult.setPageIndex(page);
+			        retsult.setPageCount(0);
+			        retsult.setList(new ArrayList<Job>());
+			        
+	        		return retsult;
+				}
 
-		        //Analyzer analyzer=new StandardAnalyzer(Version.LUCENE_CURRENT);
+		        //Analyzer analyzer=new SmartChineseAnalyzer(Version.LUCENE_CURRENT);
 		        Analyzer analyzer=new IKAnalyzer(true);
-		        String[] fields=new String[]{"title","companyName","weight","desc","source"};
+		        String[] fields=new String[]{"title","companyName","desc"};
 		        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
-		         
-		        String  keyword=map.get("keyword");
-		        Query query=multiQParser.parse(keyword);
+		        
+		        Query keyQuery=multiQParser.parse(keyword);
+	        	
+		        query.add(keyQuery, BooleanClause.Occur.MUST);
+		        
+	        	if(address!=null&&!"".equals(address)){
+	        		Query addressQuery=new FuzzyQuery(new Term("工作地点",address));
+	        		//Query query1 = new TermQuery(new Term("工作地点", address)); // 词语搜索
+	        		
+	        		query.add(addressQuery, BooleanClause.Occur.MUST);
+	        	}
+	        	
+	        	if(salary!=null&&!"".equals(salary)){
+	        		
+	        		Query salaryQuery = new TermQuery(new Term("salary", salary));
+	        		
+	        		query.add(salaryQuery, BooleanClause.Occur.SHOULD);
+	        	}
+	        	
+	        	if(source!=null&&!"".equals(source)){
+	        		
+	        		query.add(new TermQuery(new Term("source", source)), BooleanClause.Occur.SHOULD);
+	        	}
+	        	if(company!=null&&!"".equals(company)){
+	        		
+	        		query.add(new TermQuery(new Term("company", company)), BooleanClause.Occur.SHOULD);
+	        	}
+		        
+		        //排序
+		        //Sort sort = new Sort(new SortField("发布日期", SortField.DOC, false));
 		        
 		        //page
 		        TopScoreDocCollector topCollector=TopScoreDocCollector.create(searcher.getIndexReader().maxDoc(), false);

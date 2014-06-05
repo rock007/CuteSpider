@@ -94,7 +94,7 @@ public class JobIndexFile {
 
 	public IndexWriter getWriter() throws Exception {
 
-		 //Analyzer analyzer=new StandardAnalyzer(Version.LUCENE_48);
+		 //Analyzer analyzer=new StandardAnalyzer(Version.LUCENE_48);//SmartChineseAnalyzer
 		Analyzer analyzer = new IKAnalyzer(); // 二元ik分词
 
 		IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_48,

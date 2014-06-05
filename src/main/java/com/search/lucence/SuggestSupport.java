@@ -16,6 +16,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
+import org.wltea.analyzer.lucene.IKAnalyzer;
 
 public class SuggestSupport {
 
@@ -38,8 +39,6 @@ public class SuggestSupport {
 		INDEX_FILE=indexDir;
 		INDEX_FILE_SPELL=indexSpellDir;
 		INDEX_FIELD=indexField;
-		
-		
 	}
 	
 	public static void main(String[] args) {
@@ -54,8 +53,13 @@ public class SuggestSupport {
 	    	String words[]={};
 	        try {
 	           
+	        	if(key==null||"".equals(key)){
+	        		
+	        		return words;
+	        	}
+	        	
 	        	 //指定域所用的分析器
-	            PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new SmartChineseAnalyzer(Version.LUCENE_48,
+	            PerFieldAnalyzerWrapper wrapper = new PerFieldAnalyzerWrapper(new IKAnalyzer(
 	                    true));
 
 	            // 索引读取的配置 read index conf
@@ -74,9 +78,11 @@ public class SuggestSupport {
 	            sc.indexDictionary(dic, conf, true);
 	            
 	            words = sc.suggestSimilar(key, 10);
+	            /**
 	            for (int i = 0; i < words.length; i++) {
 	                System.out.println(words[i]);
 	            }
+	            **/
 	            sc.close();
 	        } catch (IOException e) {
 	            e.printStackTrace();
