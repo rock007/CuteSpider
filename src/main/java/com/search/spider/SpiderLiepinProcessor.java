@@ -20,7 +20,7 @@ import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.selector.Selectable;
 
 
-@Component
+@Component("SpiderLiepinProcessor")
 public class SpiderLiepinProcessor implements PageProcessor{
 
 	private static final Logger logger = LoggerFactory.getLogger(SpiderLiepinProcessor.class);
@@ -31,28 +31,30 @@ public class SpiderLiepinProcessor implements PageProcessor{
     private HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
     private Integer doneNum=0;
     
-    @Qualifier("savePipeline")
-    @Autowired
-    private SavePipeline savePipeline;
+    //@Qualifier("savePipeline")
+    //@Autowired
+    //private SavePipeline savePipeline;
     
     public SpiderLiepinProcessor(){
     	
     	site.setDomain("liepin.com");
     	site.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36");
-    	
+    		
     }
 
+    /****
     public void doWork(){
     	
     	Spider.create(this)
         .addUrl("http://www.liepin.com/zhaopin/")
         .addPipeline(new ConsolePipeline())
-        .addPipeline(savePipeline)
+        //.addPipeline(savePipeline)
         //开启5个线程抓取
         .thread(1)
         //启动爬虫
         .run();
     }
+    ***/
     
 	@Override
 	public Site getSite() {

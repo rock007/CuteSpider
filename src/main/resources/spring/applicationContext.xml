@@ -14,9 +14,36 @@
     <context:component-scan base-package="com.search.spider"/>
     
     <context:component-scan base-package="spring.test"></context:component-scan>
+    <!--  
+    <bean id="nameList" class="java.util.ArrayList">
+  <constructor-arg>
+   <list>
+    <value>liuyu</value>
+   </list>
+  </constructor-arg>
+ </bean>
+    -->
+    
+    <bean id="spiderSetMap" class="java.util.HashMap">
+  		<constructor-arg>
+   		<map>
+    		<entry key="Liepin" value="http://www.liepin.com/zhaopin/" />
+    		<entry key="Lagou" value="http://www.lagou.com/" />
+   		</map>
+  		</constructor-arg>
+ 	</bean>
     
     <bean name="jobIndexFile" class="com.search.lucence.JobIndexFile">
     	<property name="indexDir" value="/Users/fuhe-apple-02/temp/index"></property>
+    </bean>
+    
+    <bean name="spiderManager" class="com.search.spider.SpiderManager">
+    	<property name="perSpiderNum" value="1"></property>
+    	<property name="hours" value="1"></property>
+    
+    	<property name="spiderSet">
+    	 	<ref local="spiderSetMap" />
+    	</property>
     </bean>
     
 </beans>

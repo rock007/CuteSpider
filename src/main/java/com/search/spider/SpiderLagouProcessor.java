@@ -20,7 +20,7 @@ import us.codecraft.webmagic.selector.Selectable;
 
 import com.search.comm.StringUtil;
 
-@Component
+@Component("SpiderLagouProcessor")
 public class SpiderLagouProcessor implements PageProcessor{
 
 	private static final Logger logger = LoggerFactory.getLogger(SpiderLagouProcessor.class);
@@ -31,9 +31,9 @@ public class SpiderLagouProcessor implements PageProcessor{
     private HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
     private Integer doneNum=0;
     
-    @Qualifier("savePipeline")
-    @Autowired
-    private SavePipeline savePipeline;
+    //@Qualifier("savePipeline")
+    //@Autowired
+    //private SavePipeline savePipeline;
     
     public SpiderLagouProcessor(){
     	
@@ -42,6 +42,7 @@ public class SpiderLagouProcessor implements PageProcessor{
     	
     }
 
+    /****
     public void doWork(){
     	
     	Spider.create(this)
@@ -53,6 +54,7 @@ public class SpiderLagouProcessor implements PageProcessor{
         //启动爬虫
         .run();
     }
+    ***/
     
 	@Override
 	public Site getSite() {
