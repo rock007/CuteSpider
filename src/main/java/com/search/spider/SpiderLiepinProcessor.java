@@ -28,33 +28,14 @@ public class SpiderLiepinProcessor implements PageProcessor{
     public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
     
     private String pageUrl;
-    private HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
-    private Integer doneNum=0;
-    
-    //@Qualifier("savePipeline")
-    //@Autowired
-    //private SavePipeline savePipeline;
+    private static HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
+    private static Integer doneNum=0;
     
     public SpiderLiepinProcessor(){
     	
     	site.setDomain("liepin.com");
     	site.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.57 Safari/537.36");
-    		
     }
-
-    /****
-    public void doWork(){
-    	
-    	Spider.create(this)
-        .addUrl("http://www.liepin.com/zhaopin/")
-        .addPipeline(new ConsolePipeline())
-        //.addPipeline(savePipeline)
-        //开启5个线程抓取
-        .thread(1)
-        //启动爬虫
-        .run();
-    }
-    ***/
     
 	@Override
 	public Site getSite() {
@@ -71,10 +52,12 @@ public class SpiderLiepinProcessor implements PageProcessor{
 		//需要检查链接是否正确 eg:http://www.liepin.com/zhaopin/www.liepin.com/zhaopin/yuleyundong_shanghai/
 		
 		//1.页面是否已经存在过
-		if(doneLinks.containsKey(pageUrl)){
+		synchronized (doneLinks) {  
+			if(doneLinks.containsKey(pageUrl)){
 			
-			page.setSkip(true);
-			return;
+				page.setSkip(true);
+				return;
+			}
 		}
 		
 		Selectable mainSel=pageHtml.css(".main > .main-view ");
@@ -138,7 +121,10 @@ public class SpiderLiepinProcessor implements PageProcessor{
         //其他城市招聘
         //page.addTargetRequests(pageRefLinks.regex("www\\.liepin\\.com/zhaopin/[a-z]+/").all());
 		
-		doneLinks.put(pageUrl, doneNum++);
+        synchronized (doneLinks) {   
+        	doneLinks.put(pageUrl, doneNum++);
+        	SpiderRecord.addKeyNum("Liepin_all", doneNum);
+        }
 	}
 
 }

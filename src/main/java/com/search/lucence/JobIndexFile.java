@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -24,9 +25,12 @@ import com.search.db.dao.JobDao;
 import com.search.db.dao.PropDao;
 import com.search.db.model.Job;
 import com.search.db.model.Prop;
+import com.search.worker.Start;
 
 public class JobIndexFile {
 
+	private static final Logger log = Logger.getLogger(JobIndexFile.class);  
+	
 	private String indexDir;
 	
 	@Resource
@@ -37,8 +41,10 @@ public class JobIndexFile {
 
 	private Directory dir;
 
-	public void doTest() throws Exception {
+	public void doWork() throws Exception {
 
+		log.warn("index rebuild begin !");
+		
 		String pathFile = indexDir;
 
 		dir = FSDirectory.open(new File(pathFile));
@@ -85,10 +91,10 @@ public class JobIndexFile {
 			
 			writer.addDocument(doc);
 
-			System.out.println(i + " " + jobs.get(i).getTitle());
+			log.debug(i + " " + jobs.get(i).getTitle());
 		}
 		writer.commit();
-		System.out.println("game over !");
+		log.warn("index rebuild over !");
 		writer.close();
 	}
 

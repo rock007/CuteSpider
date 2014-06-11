@@ -28,12 +28,8 @@ public class SpiderLagouProcessor implements PageProcessor{
     public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
     
     private String pageUrl;
-    private HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
-    private Integer doneNum=0;
-    
-    //@Qualifier("savePipeline")
-    //@Autowired
-    //private SavePipeline savePipeline;
+    private static HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
+    private static Integer doneNum=0;
     
     public SpiderLagouProcessor(){
     	
@@ -42,20 +38,6 @@ public class SpiderLagouProcessor implements PageProcessor{
     	
     }
 
-    /****
-    public void doWork(){
-    	
-    	Spider.create(this)
-        .addUrl("http://www.lagou.com/")
-        .addPipeline(new ConsolePipeline())
-        .addPipeline(savePipeline)
-        //开启5个线程抓取
-        .thread(1)
-        //启动爬虫
-        .run();
-    }
-    ***/
-    
 	@Override
 	public Site getSite() {
 
@@ -73,10 +55,12 @@ public class SpiderLagouProcessor implements PageProcessor{
 		Selectable pageRefLinks= page.getHtml().links();
 		
 		//1.页面是否已经存在过
-		if(doneLinks.containsKey(pageUrl)){
+		synchronized (doneLinks) {  
+			if(doneLinks.containsKey(pageUrl)){
 			
-			page.setSkip(true);
-			return;
+				page.setSkip(true);
+				return;
+			}
 		}
 		
 		//左边职位介绍
@@ -177,8 +161,10 @@ public class SpiderLagouProcessor implements PageProcessor{
         //分页、列表
          page.addTargetRequests(pageRefLinks.regex("(http://www.lagou.com/jobs/list_([\\w?=&%]+))").all());
         
-		
-		doneLinks.put(pageUrl, doneNum++);
+		synchronized (doneLinks) {   
+        	doneLinks.put(pageUrl, doneNum++);
+        	SpiderRecord.addKeyNum("Lagou_all", doneNum);
+        }
 	}
 
 }

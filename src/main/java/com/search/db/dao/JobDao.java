@@ -11,7 +11,6 @@ import com.search.db.model.Job;
 import com.search.db.model.Prop;
 
 public interface JobDao {
-
 	
     @Insert("INSERT INTO `b_job` "+
     		" (`jid`,`title`,`salary`,`companyName`,`companyDesc`,`companyDescHtml`,`desc`,`descHtml`,`url`,`source`,`createDate`,`updateDate`) "+

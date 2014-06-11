@@ -4,12 +4,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import com.search.comm.StringUtil;
+import com.search.db.dao.FetchLogDao;
+import com.search.db.model.FetchLog;
 
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
@@ -31,9 +37,15 @@ public class SpiderManager {
     @Autowired
     private SavePipeline savePipeline;
     
+    @Resource
+    private FetchLogDao fetchLogDao;
+    
+    String today="";
+    
 	public void lesgo(){
 		
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/spring/applicationContext*.xml");
+		today=StringUtil.Date2String();
 		
 		for (Iterator<String> it = spiderSet.keySet().iterator(); it.hasNext();) {
 			String key = it.next();
@@ -55,7 +67,6 @@ public class SpiderManager {
 	        //启动爬虫
 			oneSpider.start();
 			spiderMap.put(spiderName, oneSpider);
-			
 		}
 		
 	}
@@ -70,8 +81,39 @@ public class SpiderManager {
 			} catch (Exception ex) {
 				logger.error("关闭spider:" + key + "，失败！", ex);
 			}
-
 		}
+	}
+	
+	public void keepLog(){
+		
+		logger.warn("keepLog begin");
+		for (Iterator<String> it = spiderMap.keySet().iterator(); it.hasNext();) {
+			String key = it.next();
+			
+			if(SpiderRecord.recordMap.get(key)==null) continue;
+			
+			//Spider oneSpider=spiderMap.get(key);
+			
+			FetchLog log=new FetchLog();
+			
+			List<FetchLog> list= fetchLogDao.getBy(today, key);
+			if(list.size()==0){
+				
+				log.setDay(today);
+				log.setSite(key);
+				log.setFetchNum(SpiderRecord.recordMap.get(key+"_all"));
+				log.setValidNum(SpiderRecord.recordMap.get(key));
+				
+				fetchLogDao.add(log);
+			}else{
+				log=list.get(0);
+				log.setFetchNum(log.getFetchNum()+SpiderRecord.recordMap.get(key+"_all"));
+				log.setValidNum(log.getValidNum()+SpiderRecord.recordMap.get(key));
+				
+				fetchLogDao.update(log);
+			}
+		}		
+		logger.warn("keepLog end");
 	}
 	
 	public void print(){
@@ -86,7 +128,6 @@ public class SpiderManager {
 			
 			System.out.println(str);
 		}
-		
 	}
 
 	public Integer getHours() {

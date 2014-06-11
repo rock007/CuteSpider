@@ -51,6 +51,29 @@ public class SavePipeline implements  Pipeline{
 			return;
 		}
 		
+		String source=(String)resultItems.get("source");
+		
+		
+		if(source.equals("lagou")){
+		
+				Integer lagouNum=SpiderRecord.recordMap.get("Lagou");
+			
+				if(lagouNum==null)lagouNum=0;
+			
+				lagouNum+=1;
+				SpiderRecord.addKeyNum("Lagou", lagouNum);
+				
+		}else if(source.equals("liepin")){
+			
+				Integer liepinNum=SpiderRecord.recordMap.get("Liepin");
+			
+				if(liepinNum==null)liepinNum=0;
+			
+				liepinNum+=1;
+				SpiderRecord.addKeyNum("Liepin", liepinNum);
+		}
+		
+		
 		String companyDescHtml=(String)resultItems.get("companyDesc");
 		String jobDescHtml=(String)resultItems.get("descr");
 		

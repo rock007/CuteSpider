@@ -23,7 +23,7 @@ public class IndexWorker {
 		JobIndexFile index = applicationContext.getBean("jobIndexFile", JobIndexFile.class);
 
 		try {
-			index.doTest();
+			index.doWork();
 		} catch (Exception e) {
 
 			e.printStackTrace();
