@@ -75,4 +75,17 @@ public class StringUtil {
 	        date = cal.getTime();
 	        return date;
 	}
+	
+	public static boolean isIn(String substring, String[] source) {
+		if (source == null || source.length == 0) {
+			return false;
+		}
+		for (int i = 0; i < source.length; i++) {
+			String aSource = source[i];
+			if (aSource.equals(substring)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

@@ -61,7 +61,7 @@ public class SpiderManager {
 			Spider oneSpider=Spider.create(oneProcessor);
 			
 			oneSpider.addUrl(spierUrl);
-			oneSpider.addPipeline(new ConsolePipeline());
+			//oneSpider.addPipeline(new ConsolePipeline());
 			oneSpider.addPipeline(savePipeline);
 			oneSpider.thread(perSpiderNum);
 	        //启动爬虫

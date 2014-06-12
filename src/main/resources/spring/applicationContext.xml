@@ -37,4 +37,8 @@
     	</property>
     </bean>
     
+    <bean id="indexSearch" class="com.search.lucence.IndexSearch">
+    	<constructor-arg name="indexDir" value="/Users/fuhe-apple-02/temp/index"></constructor-arg>
+    </bean>
+    
 </beans>

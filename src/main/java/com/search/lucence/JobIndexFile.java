@@ -91,7 +91,7 @@ public class JobIndexFile {
 			
 			writer.addDocument(doc);
 
-			log.debug(i + " " + jobs.get(i).getTitle());
+			log.info(i + " " + jobs.get(i).getTitle());
 		}
 		writer.commit();
 		log.warn("index rebuild over !");

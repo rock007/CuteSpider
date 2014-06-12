@@ -57,6 +57,7 @@ import com.search.db.dao.PropDao;
 import com.search.db.model.Job;
 import com.search.db.model.Prop;
 import com.search.db.model.vo.JobVO;
+import com.search.form.model.SearchForm;
 
 public class IndexSearch {
 	
@@ -95,7 +96,7 @@ public class IndexSearch {
         }
     }
 
-	public ResultModel<JobVO>  doSearch(HashMap<String,String> map,int page,int pageMaxCount) throws Exception {
+	public ResultModel<JobVO>  doSearch(SearchForm form,int page,int pageMaxCount) throws Exception {
 	    
 		 	long  begin=System.currentTimeMillis();
 		 	String debugStr="";
@@ -104,11 +105,11 @@ public class IndexSearch {
 	        IndexSearcher searcher=mgr.acquire();
 	        
 	        try {
-	        	String  keyword=map.get("keyword");
-	        	String address=map.get("address");
-	        	String salary=map.get("salary");
-	        	String source =map.get("source");
-	        	String company=map.get("comapny");
+	        	String  keyword=form.getKeyword();
+	        	String address=form.getAddress();
+	        	String salary=form.getSalary();
+	        	String source =form.getSource();
+	        	String company=form.getCompany();
 	        	
 	        	BooleanQuery query = new BooleanQuery();
 	        	
@@ -123,7 +124,6 @@ public class IndexSearch {
 	        		return retsult;
 				}
 
-		        //Analyzer analyzer=new SmartChineseAnalyzer(Version.LUCENE_CURRENT);
 		        Analyzer analyzer=new IKAnalyzer(true);
 		        String[] fields=new String[]{"title","companyName","desc"};
 		        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
@@ -143,31 +143,28 @@ public class IndexSearch {
 	        		
 	        		Query salaryQuery = new TermQuery(new Term("salary", salary));
 	        		
-	        		query.add(salaryQuery, BooleanClause.Occur.SHOULD);
+	        		query.add(salaryQuery, BooleanClause.Occur.MUST);
 	        	}
 	        	
 	        	if(source!=null&&!"".equals(source)){
 	        		
-	        		query.add(new TermQuery(new Term("source", source)), BooleanClause.Occur.SHOULD);
+	        		query.add(new TermQuery(new Term("source", source)), BooleanClause.Occur.MUST);
 	        	}
 	        	if(company!=null&&!"".equals(company)){
-	        		
-	        		query.add(new TermQuery(new Term("company", company)), BooleanClause.Occur.SHOULD);
+	        		Query companyQuery=new FuzzyQuery(new Term("companyName",company));
+	        		query.add(companyQuery, BooleanClause.Occur.MUST);
 	        	}
-		        
-		        //排序
-		        //Sort sort = new Sort(new SortField("发布日期", SortField.DOC, false));
 		        
 		        //page
 		        TopScoreDocCollector topCollector=TopScoreDocCollector.create(searcher.getIndexReader().maxDoc(), false);
 		        searcher.search(query, topCollector);
-		        System.out.println("一共有多少条记录命中:"+topCollector.getTotalHits());
+		        debugStr+="一共有"+topCollector.getTotalHits()+"记录  ";
 		        
 		        int start = (page - 1) * pageMaxCount;//start:开始条数   pageMaxCount：显示多少条
 		        ScoreDoc[] scoreDocs= topCollector.topDocs(start, pageMaxCount).scoreDocs;
 
 		        long  end=System.currentTimeMillis();
-		        debugStr+="搜索共耗时:"+(end-begin)+" 毫秒";
+		        debugStr+="搜索共耗时"+(end-begin)+"毫秒";
 		        
 		        logger.debug(debugStr);
 		       
@@ -343,26 +340,21 @@ public class IndexSearch {
               
         }  
     }
+   
     
     public HashMap<String,Integer> group(String groupField,String content) throws IOException, ParseException {
     	
     	HashMap<String,Integer> topMap=new HashMap<String,Integer>();
-    	//IndexSearcher  searcher= mgr.acquire();
+    	IndexSearcher  searcher= mgr.acquire();
 		  try{
-			  
-		        IndexReader reader=DirectoryReader.open(directory);
-		        IndexSearcher searcher=new IndexSearcher(reader);
-		        
 			   GroupingSearch groupingSearch = new GroupingSearch(groupField);
 				
 		        groupingSearch.setFillSortFields(true);
-		
 		        groupingSearch.setCachingInMB(4.0, true);
-		
 		        groupingSearch.setAllGroups(true);
 		
 		        Analyzer analyzer=new IKAnalyzer(true);
-		        String[] fields=new String[]{"title","companyName","salary"};
+		        String[] fields=new String[]{"title","companyName","desc"};
 		        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
 		        
 		        Query query = multiQParser.parse(content);
@@ -376,17 +368,16 @@ public class IndexSearch {
 		            
 		            topMap.put(groupDocs.groupValue.utf8ToString(), groupDocs.totalHits);
 		        }
-			  
+		        
 		  }catch(Exception ex){
 			  
 			  logger.error("get search group", ex);
 		  }finally {
-	        	//mgr.release(searcher);
+	        	mgr.release(searcher);
 	        }
-	        //searcher = null;
+	        searcher = null;
 	        
 		  return topMap;
     }
-    
     
 }
