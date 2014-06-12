@@ -6,15 +6,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Resource;
+
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexReader.ReaderClosedListener;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.index.TrackingIndexWriter;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -27,6 +35,9 @@ import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.search.grouping.GroupDocs;
+import org.apache.lucene.search.grouping.GroupingSearch;
+import org.apache.lucene.search.grouping.TopGroups;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
@@ -34,6 +45,7 @@ import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,30 +53,40 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
 
 import com.search.comm.ResultModel;
 import com.search.comm.StringUtil;
+import com.search.db.dao.PropDao;
 import com.search.db.model.Job;
+import com.search.db.model.Prop;
+import com.search.db.model.vo.JobVO;
 
 public class IndexSearch {
 	
 	private static final Logger logger = LoggerFactory.getLogger(IndexSearch.class);
 	
-	//private String indexDir;
 	
 	private static Directory directory;
 	
-	private static SearcherManager mgr;
+	private  SearcherManager mgr;
 	private  SearcherFactory searcherFactory;
 	
-    //private  IndexReader reader;  
-    
+	@Resource
+	private PropDao propDao;
+	
     public IndexSearch(String indexDir){
     	
     	try {  
 
 			if (mgr == null) {
 				directory = FSDirectory.open(new File(indexDir));
-
+				/****
+				Analyzer analyzer=new IKAnalyzer(true);
+	            IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_48, analyzer);
+	            
+				 indexWriter = new IndexWriter(directory, conf);
 				searcherFactory = new SearcherFactory();
-
+				
+				TrackingIndexWriter tw = new NRTManager.TrackingIndexWriter(indexWriter);
+	            NRTManager nrtManager = new NRTManager(tw, searcherFactory, true);
+	            ***/
 				mgr = new SearcherManager(directory, null);
 			}
         } catch (Exception e) {  
@@ -73,11 +95,11 @@ public class IndexSearch {
         }
     }
 
-	public ResultModel<Job>  doSearch(HashMap<String,String> map,int page,int pageMaxCount) throws Exception {
+	public ResultModel<JobVO>  doSearch(HashMap<String,String> map,int page,int pageMaxCount) throws Exception {
 	    
 		 	long  begin=System.currentTimeMillis();
 		 	String debugStr="";
-			ResultModel<Job> retsult=new ResultModel<Job>();
+			ResultModel<JobVO> retsult=new ResultModel<JobVO>();
 		
 	        IndexSearcher searcher=mgr.acquire();
 	        
@@ -96,7 +118,7 @@ public class IndexSearch {
 			        retsult.setCode(1);
 			        retsult.setPageIndex(page);
 			        retsult.setPageCount(0);
-			        retsult.setList(new ArrayList<Job>());
+			        retsult.setList(new ArrayList<JobVO>());
 			        
 	        		return retsult;
 				}
@@ -157,16 +179,16 @@ public class IndexSearch {
 		        SimpleHTMLFormatter htmlFormatter = new SimpleHTMLFormatter();
 		        Highlighter highlighter = new Highlighter(htmlFormatter, new QueryScorer(query));
 		        
-		        List<Job> jobs=new ArrayList<Job>();
+		        List<JobVO> jobs=new ArrayList<JobVO>();
 		        for (int i = 0; i < scoreDocs.length; i++) {
 		        	   Document doc = searcher.doc(scoreDocs[i].doc);
 		        	   
 			            logger.debug("title===="+doc.get("title"));
 			            logger.debug("id--" + scoreDocs[i].doc + "---scors--" + scoreDocs[i].score+"---index--"+scoreDocs[i].shardIndex);
 			            
-			            Job oneJob=new Job();
+			            JobVO oneJob=new JobVO();
 			            
-			            //oneJob.setJid(Integer.parseInt(doc.get("jid")));
+			            oneJob.setJid(Integer.parseInt(doc.get("jid")));
 			            oneJob.setCompanyDesc(doc.get("companyDesc"));
 			            oneJob.setCompanyName(doc.get("companyName"));
 			            oneJob.setCreateDate(doc.get("title"));
@@ -186,11 +208,15 @@ public class IndexSearch {
 			            oneJob.setDescHtml(doc.get("descHtml"));
 			            oneJob.setDesc(brief);
 			           
-			            //oneJob.setJid(doc.get("title"));
 			            oneJob.setSalary(doc.get("salary"));
 			            oneJob.setSource(doc.get("source"));
 			            oneJob.setTitle(doc.get("title"));
 			            oneJob.setUrl(doc.get("url"));
+			            
+			            List<Prop> propList=propDao.getPropListBySourceId(oneJob.getJid());
+						for(Prop p:propList){
+							oneJob.getProps().put(p.getKey(), p.getValue());
+						}
 			            
 			            jobs.add(oneJob);
 		         }
@@ -318,7 +344,49 @@ public class IndexSearch {
         }  
     }
     
-   
+    public HashMap<String,Integer> group(String groupField,String content) throws IOException, ParseException {
+    	
+    	HashMap<String,Integer> topMap=new HashMap<String,Integer>();
+    	//IndexSearcher  searcher= mgr.acquire();
+		  try{
+			  
+		        IndexReader reader=DirectoryReader.open(directory);
+		        IndexSearcher searcher=new IndexSearcher(reader);
+		        
+			   GroupingSearch groupingSearch = new GroupingSearch(groupField);
+				
+		        groupingSearch.setFillSortFields(true);
+		
+		        groupingSearch.setCachingInMB(4.0, true);
+		
+		        groupingSearch.setAllGroups(true);
+		
+		        Analyzer analyzer=new IKAnalyzer(true);
+		        String[] fields=new String[]{"title","companyName","salary"};
+		        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
+		        
+		        Query query = multiQParser.parse(content);
+		        
+		        TopGroups<BytesRef> result = groupingSearch.search(searcher, query, 0, 10);
+		
+		        logger.debug("搜索命中数：" + result.totalHitCount+" "+"搜索结果分组数：" + result.groups.length);
+		        for (GroupDocs<BytesRef> groupDocs : result.groups) {
+		
+		            logger.debug("分组：" + groupDocs.groupValue.utf8ToString()+" "+"组内记录：" + groupDocs.totalHits);
+		            
+		            topMap.put(groupDocs.groupValue.utf8ToString(), groupDocs.totalHits);
+		        }
+			  
+		  }catch(Exception ex){
+			  
+			  logger.error("get search group", ex);
+		  }finally {
+	        	//mgr.release(searcher);
+	        }
+	        //searcher = null;
+	        
+		  return topMap;
+    }
     
     
 }

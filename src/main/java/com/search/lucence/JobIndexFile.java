@@ -58,7 +58,7 @@ public class JobIndexFile {
 
 			Document doc = new Document();
 
-			doc.add(new LongField("jid", jobs.get(i).getJid(),Store.NO));
+			doc.add(new LongField("jid", jobs.get(i).getJid(),Store.YES));
 			doc.add(new StringField("title", jobs.get(i).getTitle(), Store.YES));
 			doc.add(new TextField("companyDesc", jobs.get(i).getCompanyDesc(),
 					Store.YES));

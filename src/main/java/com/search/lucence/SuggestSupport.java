@@ -19,11 +19,6 @@ import org.apache.lucene.util.Version;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 public class SuggestSupport {
-
-	//private static SpellChecker sc;
-	
-	//private static Dictionary dic;
-	//private static IndexWriterConfig conf;
 	
 	private  String INDEX_FILE = "/Users/fuhe-apple-02/temp/index";
 	private  String INDEX_FILE_SPELL = "/Users/fuhe-apple-02/temp/spell";
@@ -39,13 +34,6 @@ public class SuggestSupport {
 		INDEX_FILE=indexDir;
 		INDEX_FILE_SPELL=indexSpellDir;
 		INDEX_FIELD=indexField;
-	}
-	
-	public static void main(String[] args) {
-		
-		SuggestSupport mm=new SuggestSupport();
-		
-		mm.doWork("北京");
 	}
 	
 	 public  String[] doWork(String key) {
@@ -78,17 +66,18 @@ public class SuggestSupport {
 	            sc.indexDictionary(dic, conf, true);
 	            
 	            words = sc.suggestSimilar(key, 10);
-	            /**
-	            for (int i = 0; i < words.length; i++) {
-	                System.out.println(words[i]);
-	            }
-	            **/
 	            sc.close();
+	            
 	        } catch (IOException e) {
 	            e.printStackTrace();
 	        }
 	        return words;
 	    }
 
-
+		public static void main(String[] args) {
+			
+			SuggestSupport mm=new SuggestSupport();
+			
+			mm.doWork("北京");
+		}
 }

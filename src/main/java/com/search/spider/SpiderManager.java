@@ -84,7 +84,7 @@ public class SpiderManager {
 		}
 	}
 	
-	public void keepLog(){
+	public synchronized void keepLog(){
 		
 		logger.warn("keepLog begin");
 		for (Iterator<String> it = spiderMap.keySet().iterator(); it.hasNext();) {

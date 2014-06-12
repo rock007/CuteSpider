@@ -39,34 +39,25 @@ public class GroupSupport {
 	
 	        GroupingSearch groupingSearch = new GroupingSearch(groupField);
 	
-	        //groupingSearch.setGroupSort(new Sort(SortField.FIELD_SCORE));
-	        //groupingSearch.setGroupSort(Sort.INDEXORDER);
-	        
 	        groupingSearch.setFillSortFields(true);
 	
 	        groupingSearch.setCachingInMB(4.0, true);
 	
 	        groupingSearch.setAllGroups(true);
 	
-	        //!!!groupingSearch.setAllGroupHeads(true);
-	
-	        //groupingSearch.setGroupDocsLimit(10); 
-	
-	        //QueryParser parser = new QueryParser(Version.LUCENE_48, groupField, new IKAnalyzer(true));
 	        Analyzer analyzer=new IKAnalyzer(true);
 	        String[] fields=new String[]{"title","companyName","desc"};
 	        MultiFieldQueryParser  multiQParser=new MultiFieldQueryParser(Version.LUCENE_48, fields, analyzer);
 	        
 	        Query query = multiQParser.parse(content);
 	
-	        TopGroups<BytesRef> result = groupingSearch.search(indexSearcher, query, 0, indexSearcher.getIndexReader().maxDoc());
+	        TopGroups<BytesRef> result = groupingSearch.search(indexSearcher, query, 0, 10);
 	
 	        System.out.println("搜索命中数：" + result.totalHitCount);
 	
 	        System.out.println("搜索结果分组数：" + result.groups.length);
-	 
-	        Document document;
-	        HashMap<Integer,String> topMap=new HashMap<Integer,String>(); 
+
+	        HashMap<String,Integer> topMap=new HashMap<String,Integer>(); 
 	        
 	        for (GroupDocs<BytesRef> groupDocs : result.groups) {
 	
@@ -74,45 +65,8 @@ public class GroupSupport {
 	
 	            System.out.println("组内记录：" + groupDocs.totalHits);
 	
-	            topMap.put(groupDocs.totalHits, groupDocs.groupValue.utf8ToString());
-	            //System.out.println("groupDocs.scoreDocs.length:" + groupDocs.scoreDocs.length);
-	            
-	            for (ScoreDoc scoreDoc : groupDocs.scoreDocs) {
-	
-	                System.out.println(indexSearcher.doc(scoreDoc.doc).get(groupField));
-	                break;
-	            }
-	        }
-	        
-	        
-	        //排序
-	        /****
-	        Arrays.sort(result.groups, new Comparator<GroupDocs<BytesRef>>() {   
-	            public int compare(Map.Entry<Integer,String> o1, Map.Entry<Integer,String> o2) {      
-	                //return (o2.getValue() - o1.getValue()); 
-	                return o1.getKey()-o2.getKey();
-	            }
-	        });
-	        ***/
-	        
-	        List<Map.Entry<Integer, String>> infoIds =
-	        	    new ArrayList<Map.Entry<Integer,String>>(topMap.entrySet());
-	        
-	        Collections.sort(infoIds, new Comparator<Map.Entry<Integer,String>>() {   
-	            public int compare(Map.Entry<Integer,String> o1, Map.Entry<Integer,String> o2) {      
-	                //return (o2.getValue() - o1.getValue()); 
-	                return o2.getKey()-o1.getKey();
-	            }
-	        }); 
-
-	      //排序后
-	        for (int i = 0; i < infoIds.size(); i++) {
-	            String id = infoIds.get(i).toString();
-	            
-	            System.out.println(id+"  >"+infoIds.get(i).getKey()+" "+infoIds.get(i).getValue());
-	        }
-	        
-	        
+	            topMap.put(groupDocs.groupValue.utf8ToString(), groupDocs.totalHits);
+	        }	        
 	    }
 	
 	public static void main(String[] args) throws IOException, ParseException {
@@ -123,7 +77,7 @@ public class GroupSupport {
 		
         GroupSupport groupTest = new GroupSupport();
 		
-		groupTest.group(searcher,"tags", "java");
+		groupTest.group(searcher,"title", "java");
 		
    }
 		
