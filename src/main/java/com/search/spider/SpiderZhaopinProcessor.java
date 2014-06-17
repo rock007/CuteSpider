@@ -1,12 +1,9 @@
 package com.search.spider;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.search.comm.StringUtil;
@@ -20,9 +17,7 @@ import us.codecraft.webmagic.selector.Selectable;
 @Component("SpiderZhaopinProcessor")
 public class SpiderZhaopinProcessor implements PageProcessor{
 
-private static final Logger logger = LoggerFactory.getLogger(SpiderZhaopinProcessor.class);
-	
-    public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
+public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
     
     private String pageUrl;
     private static HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
@@ -76,13 +71,10 @@ private static final Logger logger = LoggerFactory.getLogger(SpiderZhaopinProces
 			
 			List<String> table1TRList=table1.xpath("tr").all();
 	
-			title=table1.xpath("//tr[1]/td/h1/text()").toString();
-			companyName=table1.xpath("//tr[2]/td/h2/a/text()").toString();
+			title=table1.xpath("//tr[1]/td/h1/text()").toString().trim();
+			companyName=table1.xpath("//tr[2]/td/h2/a/text()").toString().trim();
 			
-			Selectable tr,td;
 			for(int i=2;i<table1TRList.size();i++){
-				
-				//tr=table1.xpath("//tr["+(i+1)+"]");
 				
 				List<String> tdStrs=table1.xpath("//tr["+(i+1)+"]/td").all();
 				
@@ -114,8 +106,9 @@ private static final Logger logger = LoggerFactory.getLogger(SpiderZhaopinProces
 			}
 			
 			salary=propsMap.get("职位月薪");
+			if(salary==null)salary="";
 			
-			String jobDesc=pageHtml.$("div.terminalpage-content >ol").toString();
+			String jobDesc=pageHtml.$("div.terminalpage-content").toString();
 			
 			String companyDesc=pageHtml.xpath("//div[@class='terminalpage-content clearfix']").toString();
 			
@@ -141,14 +134,14 @@ private static final Logger logger = LoggerFactory.getLogger(SpiderZhaopinProces
         
 		synchronized (doneLinks) {   
         	doneLinks.put(pageUrl, doneNum++);
-        	SpiderRecord.addKeyNum("Lagou_all", doneNum);
+        	SpiderRecord.addKeyNum("Zhaopin_all", doneNum);
         }
 		
 	}
 
 	private String clearHtml(String tag){
 		
-		return StringUtil.html2text(tag).trim();
+		return StringUtil.html2text(tag).replaceAll("：", "").trim();
 	}
 	
 }

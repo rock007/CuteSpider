@@ -89,10 +89,9 @@ public class SpiderManager {
 		logger.warn("keepLog begin");
 		for (Iterator<String> it = spiderMap.keySet().iterator(); it.hasNext();) {
 			String key = it.next();
+			key=key.toLowerCase();
 			
-			if(SpiderRecord.recordMap.get(key)==null) continue;
-			
-			//Spider oneSpider=spiderMap.get(key);
+			if(SpiderRecord.getNum(key)==0) continue;
 			
 			FetchLog log=new FetchLog();
 			
@@ -101,14 +100,14 @@ public class SpiderManager {
 				
 				log.setDay(today);
 				log.setSite(key);
-				log.setFetchNum(SpiderRecord.recordMap.get(key+"_all"));
-				log.setValidNum(SpiderRecord.recordMap.get(key));
+				log.setFetchNum(SpiderRecord.getNum(key+"_all"));
+				log.setValidNum(SpiderRecord.getNum(key));
 				
 				fetchLogDao.add(log);
 			}else{
 				log=list.get(0);
-				log.setFetchNum(log.getFetchNum()+SpiderRecord.recordMap.get(key+"_all"));
-				log.setValidNum(log.getValidNum()+SpiderRecord.recordMap.get(key));
+				log.setFetchNum(log.getFetchNum()+SpiderRecord.getNum(key+"_all"));
+				log.setValidNum(log.getValidNum()+SpiderRecord.getNum(key));
 				
 				fetchLogDao.update(log);
 			}

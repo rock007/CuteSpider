@@ -18,8 +18,11 @@
     <bean id="spiderSetMap" class="java.util.HashMap">
   		<constructor-arg>
    		<map>
+    		<!--  
     		<entry key="Liepin" value="http://www.liepin.com/zhaopin/" />
     		<entry key="Lagou" value="http://www.lagou.com/" />
+    		-->
+    		<entry key="Zhaopin" value="http://zhaopin.com/" />
    		</map>
   		</constructor-arg>
  	</bean>
@@ -29,7 +32,7 @@
     </bean>
     
     <bean name="spiderManager" class="com.search.spider.SpiderManager">
-    	<property name="perSpiderNum" value="1"></property>
+    	<property name="perSpiderNum" value="10"></property>
     	<property name="hours" value="1"></property>
     
     	<property name="spiderSet">

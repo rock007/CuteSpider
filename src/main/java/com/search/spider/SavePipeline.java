@@ -53,26 +53,17 @@ public class SavePipeline implements  Pipeline{
 		
 		String source=(String)resultItems.get("source");
 		
-		
-		if(source.equals("lagou")){
-		
-				Integer lagouNum=SpiderRecord.recordMap.get("Lagou");
+		if(source!=null&&!"".equals(source)){
 			
-				if(lagouNum==null)lagouNum=0;
+			Integer indexNum=SpiderRecord.getNum(source);
+			indexNum+=1;
 			
-				lagouNum+=1;
-				SpiderRecord.addKeyNum("Lagou", lagouNum);
-				
-		}else if(source.equals("liepin")){
+			SpiderRecord.addKeyNum(source, indexNum);
+		}else{
 			
-				Integer liepinNum=SpiderRecord.recordMap.get("Liepin");
-			
-				if(liepinNum==null)liepinNum=0;
-			
-				liepinNum+=1;
-				SpiderRecord.addKeyNum("Liepin", liepinNum);
+			logger.debug(url+":可能不是职位页面，source为空！跳过");
+			return;
 		}
-		
 		
 		String companyDescHtml=(String)resultItems.get("companyDesc");
 		String jobDescHtml=(String)resultItems.get("descr");

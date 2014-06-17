@@ -7,22 +7,23 @@ public  class SpiderRecord {
 	//记录处理数
 	public static  HashMap<String,Integer> recordMap=new HashMap<String,Integer>();
 	
-	public static void addKeyNum(String key,Integer num){
+	public static synchronized void addKeyNum(String key, Integer num) {
 		
-		synchronized (recordMap) {  
-			
-			recordMap.put(key, num);
-			
-		}
+		recordMap.put(key.toLowerCase(), num);
+	}
+
+	public static synchronized void resetKeyNum() {
+
+		recordMap.clear();
 	}
 	
-	public static void resetKeyNum(){
+	public static synchronized int getNum(String key){
 		
-		synchronized (recordMap) {  
-			
-			recordMap.clear();;
-			
-		}
+		Integer fetchNum=SpiderRecord.recordMap.get(key.toLowerCase());
+		
+		if(fetchNum==null)fetchNum=0;
+	
+		return fetchNum;
 	}
 	
 }
