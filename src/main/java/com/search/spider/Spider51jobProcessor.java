@@ -178,8 +178,12 @@ private static final Logger logger = LoggerFactory.getLogger(Spider51jobProcesso
 			page.setSkip(true);
 		}        
         //分页、列表
-         page.addTargetRequests(pageRefLinks.regex("http://[\\w,\\/-]+.51job.com/[\\w,\\/.-]+").all());
+		//too wild
+        //page.addTargetRequests(pageRefLinks.regex("http://[\\w,\\/-]+.51job.com/[\\w,\\/\\.-.%?=&-]+").all());
         
+		page.addTargetRequests(pageRefLinks.regex("http://search.51job.com/job/\\d+,\\w+.html").all());
+        page.addTargetRequests(pageRefLinks.regex("http://search.51job.com/list/[\\w,\\/.-.%?=&-]+").all());
+         
 		synchronized (doneLinks) {   
         	doneLinks.put(pageUrl, doneNum++);
         	SpiderRecord.addKeyNum("51job_all", doneNum);

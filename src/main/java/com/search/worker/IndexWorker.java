@@ -31,29 +31,25 @@ public class IndexWorker {
 
 		IndexSearch  search=applicationContext.getBean("indexSearch", IndexSearch.class);
 		
-		//JobIndexFile index = applicationContext.getBean("jobIndexFile", JobIndexFile.class);
+		JobIndexFile index = applicationContext.getBean("jobIndexFile", JobIndexFile.class);
 
 		try {
-			//index.doWork();
+			index.doWork();
 			
+			/*** demo 2
 			SearchForm form=new SearchForm();
 			form.setKeyword("java");
 			form.setAddress("上海");
 			
-			//ResultModel<JobVO> result=search.doSearch(form, 1, 10);
+			ResultModel<JobVO> result=search.doSearch(form, 1, 10);
 			
-			//System.out.println(result.getMessage());
-		
-			 Directory dir=FSDirectory.open(new File("/Users/fuhe-apple-02/temp/index"));
-		        IndexReader reader=DirectoryReader.open(dir);
-		        IndexSearcher searcher=new IndexSearcher(reader);
-		        
-			//HashMap<String, Integer>  map=
-			//search.groupV2(searcher,"title", form.getKeyword());
+			System.out.println(result.getMessage());
+			 ****/
 			
-		   HashMap<String, Integer>  map=search.group("title", form.getKeyword());
-		   System.out.println(map.toString());
-			
+			/****	 demo3
+		   	HashMap<String, Integer>  map=search.group("title", form.getKeyword());
+		   	System.out.println(map.toString());
+			 ***/
 		} catch (Exception e) {
 
 			e.printStackTrace();

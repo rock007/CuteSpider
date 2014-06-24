@@ -48,17 +48,24 @@ public class SpiderManager {
 		for (Iterator<String> it = spiderSet.keySet().iterator(); it.hasNext();) {
 			String key = it.next();
 			
-			System.out.println(key + "=" + spiderSet.get(key));
+			logger.debug(key + "=" + spiderSet.get(key));
 
 			String spiderName=key;
-			String spierUrl=spiderSet.get(key);
+			String spierUrlStr=spiderSet.get(key);
 			
 			//eg:Lagou
 			PageProcessor oneProcessor=applicationContext.getBean("Spider"+spiderName+"Processor",PageProcessor.class);
 			
 			Spider oneSpider=Spider.create(oneProcessor);
 			
-			oneSpider.addUrl(spierUrl);
+			String[] spiderUrls= spierUrlStr.split("\n");
+			
+			for(String u:spiderUrls){
+				
+				if(u.trim().length()>5)
+					oneSpider.addUrl(u.trim());	
+			}
+			
 			//oneSpider.addPipeline(new ConsolePipeline());
 			oneSpider.addPipeline(savePipeline);
 			oneSpider.thread(perSpiderNum);

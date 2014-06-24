@@ -2,9 +2,12 @@ package com.search.test;
 
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.search.spider.SavePipeline;
 import com.search.spider.Spider51jobProcessor;
 import com.search.spider.SpiderZhaopinProcessor;
 
@@ -12,7 +15,7 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 
 public class SpiderDemo {
-
+    
     public static void main(String[] args) {
     	
     	//System.setProperty("javax.net.ssl.trustStore", "/Users/fuhe-apple-02/Documents/workspace-sts-3.4.0.RELEASE/CuteSpider/jssecacerts");

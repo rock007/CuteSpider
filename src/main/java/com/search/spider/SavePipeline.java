@@ -95,7 +95,7 @@ public class SavePipeline implements  Pipeline{
 			 while (it.hasNext()) {
 			        Map.Entry<String,String> pairs = (Map.Entry<String,String>)it.next();
 			        
-			        System.out.println(pairs.getKey() + " = " + pairs.getValue());
+			        logger.debug(pairs.getKey() + " = " + pairs.getValue());
 			
 			        Prop p=new Prop();
 			        p.setSourceId(m.getJid());

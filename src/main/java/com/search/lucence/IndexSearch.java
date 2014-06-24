@@ -78,16 +78,6 @@ public class IndexSearch {
 
 			if (mgr == null) {
 				directory = FSDirectory.open(new File(indexDir));
-				/****
-				Analyzer analyzer=new IKAnalyzer(true);
-	            IndexWriterConfig conf = new IndexWriterConfig(Version.LUCENE_48, analyzer);
-	            
-				 indexWriter = new IndexWriter(directory, conf);
-				searcherFactory = new SearcherFactory();
-				
-				TrackingIndexWriter tw = new NRTManager.TrackingIndexWriter(indexWriter);
-	            NRTManager nrtManager = new NRTManager(tw, searcherFactory, true);
-	            ***/
 				mgr = new SearcherManager(directory, null);
 			}
         } catch (Exception e) {  

@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Component;
 
 import com.search.db.model.Job;
@@ -26,7 +28,9 @@ public interface JobDao {
     public List<Job> getByUrl(String url);
     
     
-    @Select(" select * from  `b_job` where status=#{status}")
-    public List<Job> getByStatus(int status);
+    @Select(" select * from  `b_job` where status=#{status} and createDate=#{createDate} limit #{start} , #{limit}")
+    public List<Job> getByStatus(@Param("status") int status,@Param("createDate") String createDate,@Param("start")int start,@Param("limit")int limit);
     
+    @Update("call sp_pre_index() ")
+    public int sp_pre_fix();
 }

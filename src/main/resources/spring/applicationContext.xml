@@ -21,9 +21,12 @@
     		<!-- 
     		<entry key="Liepin" value="http://www.liepin.com/zhaopin/" />
     		<entry key="Lagou" value="http://www.lagou.com/" />
-    		<entry key="Zhaopin" value="http://zhaopin.com/" />
+    		<entry key="Zhaopin" value="http://top.zhaopin.com/?cityid=538" />
     		 -->
-    		<entry key="51job" value="http://51job.com/" />
+    		<entry key="51job" value="http://search.51job.com/list/020000,020100,0000,00,9,99,%2B,2,1.html
+    								&#x000A;http://search.51job.com/list/010000,010100,0000,00,9,99,%2B,2,1.html">
+    		
+    		</entry>
    		</map>
   		</constructor-arg>
  	</bean>
