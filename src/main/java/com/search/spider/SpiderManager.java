@@ -29,8 +29,6 @@ public class SpiderManager {
 	
 	private int perSpiderNum;//进程个数
 	
-	private Integer hours=3;//几个小时
-	
 	private HashMap<String,Spider> spiderMap=new HashMap<String,Spider>();
 	
     @Qualifier("savePipeline")
@@ -127,14 +125,6 @@ public class SpiderManager {
 			
 			System.out.println(str);
 		}
-	}
-
-	public Integer getHours() {
-		return hours;
-	}
-
-	public void setHours(Integer hours) {
-		this.hours = hours;
 	}
 	
 	public HashMap<String, String> getSpiderSet() {

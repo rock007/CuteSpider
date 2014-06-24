@@ -109,7 +109,7 @@ public class Start {
 			 //启动
 			 spiderManager.lesgo();
 			 
-			 int runTime=spiderManager.getHours();
+			 int runTime=2;//spiderManager.getHours();
 			 
 			 long hour=0,keepTime=0;
 			 try

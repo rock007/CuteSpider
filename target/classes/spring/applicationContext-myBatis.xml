@@ -18,6 +18,26 @@
         <property name="url" value="jdbc:mysql://192.168.1.221:3306/jobcloud?characterEncoding=UTF-8" />
         <property name="username" value="root" />
         <property name="password" value="jimocun" />
+        
+        <property name="maxActive">
+   			<value>100</value>
+  		</property>
+  		<property name="maxIdle">
+   			<value>50</value>
+  		</property>
+  		<property name="maxWait">
+   			<value>10000</value>
+  		</property>
+
+  		<property name="timeBetweenEvictionRunsMillis">
+   			<value>3600000</value>
+  		</property>
+  		<property name="testWhileIdle">
+   			<value>true</value>
+  		</property>
+  		<property name="validationQuery">
+   			<value>select 1 from dual</value>
+  		</property>
     </bean>
     
  </beans>

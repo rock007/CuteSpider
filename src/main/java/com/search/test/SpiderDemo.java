@@ -20,7 +20,7 @@ public class SpiderDemo {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/spring/applicationContext*.xml");
 		
 		try{
-			/****
+			
 			Spider51jobProcessor spider=applicationContext.getBean("Spider51jobProcessor",Spider51jobProcessor.class);
 				
 			Spider oneSpider=Spider.create(spider);
@@ -31,8 +31,8 @@ public class SpiderDemo {
 			oneSpider.thread(1);
 	        //启动爬虫
 			oneSpider.run();
-			****/
-			  
+			
+			/****  
 			SpiderZhaopinProcessor spider=applicationContext.getBean("SpiderZhaopinProcessor",SpiderZhaopinProcessor.class);
 			
 			Spider oneSpider=Spider.create(spider);
@@ -43,7 +43,7 @@ public class SpiderDemo {
 			oneSpider.thread(1);
 	        //启动爬虫
 			oneSpider.run();
-			
+			****/
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
