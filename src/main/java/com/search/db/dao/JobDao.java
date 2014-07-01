@@ -31,6 +31,10 @@ public interface JobDao {
     @Select(" select * from  `b_job` where status=#{status} and createDate=#{createDate} limit #{start} , #{limit}")
     public List<Job> getByStatus(@Param("status") int status,@Param("createDate") String createDate,@Param("start")int start,@Param("limit")int limit);
     
+    @Select(" select * from  `b_job` where status=#{status}  limit #{start} , #{limit}")
+    public List<Job> getAllByStatus(@Param("status") int status,@Param("start")int start,@Param("limit")int limit);
+    
+    
     @Update("call sp_pre_index() ")
     public int sp_pre_fix();
 }

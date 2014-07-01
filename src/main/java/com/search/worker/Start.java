@@ -7,16 +7,24 @@ import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
+
+import com.search.comm.CustomSignalHandler;
 import com.search.lucence.JobIndexFile;
 import com.search.spider.SpiderLagouProcessor;
 import com.search.spider.SpiderLiepinProcessor;
 import com.search.spider.SpiderManager;
 import com.search.spider.SpiderRecord;
 
-public class Start {
+public  class Start{
 
-	 private static final Logger log = Logger.getLogger(Start.class);  
+	private static final Logger log = Logger.getLogger(Start.class);  
 	 
+	static SpiderManager spiderManager;
+	
+	static boolean isFucked=false;
+	
 	public static void main(String[] args) {
 		
 		 ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/spring/applicationContext*.xml");
@@ -42,10 +50,15 @@ public class Start {
 				 return;				 
 			 }
 			 
-			 SpiderManager spiderManager=applicationContext.getBean("spiderManager",SpiderManager.class);
+		     addSignalHandler("INT");/* 注册KILL信号 */
+		     addSignalHandler("TERM");/* 注册CTRL+C信号 */
+		      
+			 spiderManager=applicationContext.getBean("spiderManager",SpiderManager.class);
 			 JobIndexFile index = applicationContext.getBean("jobIndexFile", JobIndexFile.class);
 			 
 			 while(true){
+				 
+				 if(isFucked) break;
 				 
 				 Date curDate=new Date();
 				 Calendar calendar = Calendar.getInstance();
@@ -90,62 +103,22 @@ public class Start {
 			
 		 }catch(Exception ex){
 			 
-			 ex.printStackTrace();
 			 log.error("start exception",ex );
 		 }
 		 log.warn("work finish!");
 	}
-	
-	public void doFetchURL(){
-		
-		ApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:/spring/applicationContext*.xml");
-		 SpiderManager spiderManager=applicationContext.getBean("spiderManager",SpiderManager.class);
-		 
-		 try{
-			 
-			 Date beginDate=new Date();
-			 Date curDate=new Date();
-			 
-			 //启动
-			 spiderManager.lesgo();
-			 
-			 int runTime=2;//spiderManager.getHours();
-			 
-			 long hour=0,keepTime=0;
-			 try
-			 { 
-				 do {
-					 
-					 curDate=new Date();
-
-				     long diff = curDate.getTime() - beginDate.getTime();
-
-				      hour = diff / (1000 * 60 * 60 );
-				      
-				      //暂停一分钟
-				      Thread.sleep(60000);
-				      keepTime++;
-				      if(keepTime>=10){
-				    	  
-				    	  keepTime=0;
-				    	  spiderManager.keepLog();
-				      }
-				 }while(hour < runTime);
-				 
-				 //时间到了！
-				 spiderManager.stop();
-				 
+	 
+	 private static  void addSignalHandler(String signalName) {
+	     Signal.handle(new Signal(signalName), new SignalHandler() {
+	         public void handle(Signal sig) {
+	        	 log.warn("I am fucking killed!");
+	           
+	             isFucked=true;
+	             spiderManager.stop();
 				 //保存抓取短讯
 				 spiderManager.keepLog();
-				 //发送邮件
-			 }
-			 catch (Exception e)
-			 {
-				 System.out.print(e.toString());
-			 }
-		 }catch(Exception ex){
-			 
-			 ex.printStackTrace();
-		 }
+	         }
+	     });
+	     log.debug("Added signal handler:"+signalName);
 	}
 }

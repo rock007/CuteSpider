@@ -23,7 +23,7 @@ public class SuggestSupport {
 	private  String INDEX_FILE = "/Users/fuhe-apple-02/temp/index";
 	private  String INDEX_FILE_SPELL = "/Users/fuhe-apple-02/temp/spell";
 
-	private  String INDEX_FIELD = "title,salary,companyName";
+	private  String INDEX_FIELD = "title";//,salary,companyName
 	
 	public SuggestSupport(){
 		
@@ -62,7 +62,7 @@ public class SuggestSupport {
 	            LuceneDictionary  dic = new LuceneDictionary(indexReader, INDEX_FIELD);
 	        	
 	            SpellChecker sc = new SpellChecker(FSDirectory.open(new File(INDEX_FILE_SPELL)));
-	            //sc.indexDictionary(new PlainTextDictionary(new File("myfile.txt")), conf, false);
+	            sc.setAccuracy(0.5f);
 	            sc.indexDictionary(dic, conf, true);
 	            
 	            words = sc.suggestSimilar(key, 10);
@@ -73,7 +73,7 @@ public class SuggestSupport {
 	        }
 	        return words;
 	    }
-
+	 
 		public static void main(String[] args) {
 			
 			SuggestSupport mm=new SuggestSupport();

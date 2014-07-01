@@ -29,12 +29,19 @@ public class IndexWorker {
 		ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
 				"classpath:/spring/applicationContext*.xml");
 
-		IndexSearch  search=applicationContext.getBean("indexSearch", IndexSearch.class);
+		//IndexSearch  search=applicationContext.getBean("indexSearch", IndexSearch.class);
 		
 		JobIndexFile index = applicationContext.getBean("jobIndexFile", JobIndexFile.class);
 
 		try {
-			index.doWork();
+			
+			String curDate="";
+			if(args.length==1){
+				
+				curDate=args[0];
+			}
+			
+			index.doWork(curDate);
 			
 			/*** demo 2
 			SearchForm form=new SearchForm();
