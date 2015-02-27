@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.search.comm.StringUtil;
@@ -19,6 +21,8 @@ public class SpiderZhaopinProcessor implements PageProcessor{
 
 public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
     
+	private static final Logger logger = LoggerFactory.getLogger(SpiderZhaopinProcessor.class);
+
     private String pageUrl;
     private static HashMap<String,Integer> doneLinks=new HashMap<String,Integer>();
     private static Integer doneNum=0;
@@ -39,6 +43,8 @@ public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
 	public void process(Page page) {
 		
 		String title,companyName,salary;
+		
+		String keyStr,valueStr;
 		
 		//属性
 		HashMap<String,String> propsMap=new HashMap<String,String>();
@@ -65,52 +71,44 @@ public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
 			//可以处理
 			System.out.println("找到一个:"+pageUrl);
 			
-			Selectable jobSel=pageHtml.xpath("//div[@class='top-left']");
+			String pageTitle[]=pageHtml.getDocument().title().split("-");
 			
-			Selectable table1=jobSel.xpath("//table[1]");
+			title=pageTitle[0].replaceAll("招聘", "");
+			companyName=pageTitle[1];
 			
-			List<String> table1TRList=table1.xpath("tr").all();
-	
-			title=table1.xpath("//tr[1]/td/h1/text()").toString().trim();
-			companyName=table1.xpath("//tr[2]/td/h2/a/text()").toString().trim();
+			List<String> keyList= pageHtml.xpath("//ul[@class='terminal-ul']/li").all();
 			
-			for(int i=2;i<table1TRList.size();i++){
+			String line="",lines[];
+			for(int ii=0;ii< keyList.size();ii++){
 				
-				List<String> tdStrs=table1.xpath("//tr["+(i+1)+"]/td").all();
-				
-				if(tdStrs.size()==2){
-					
-					propsMap.put(clearHtml(tdStrs.get(0)), clearHtml(tdStrs.get(1)));
-					
-				}else if(tdStrs.size()==4){
-					propsMap.put(clearHtml(tdStrs.get(0)), clearHtml(tdStrs.get(1)));
-					propsMap.put(clearHtml(tdStrs.get(2)), clearHtml(tdStrs.get(3)));
+				if(keyList.get(ii)==null) {
+					logger.warn("why keylist is null!");
+					continue;
 				}
-			}
-			
-			Selectable table2=jobSel.xpath("//table[2]");
-			List<String> table2TRList=table2.xpath("tr").all();
-			
-			for(int i=0;i<table2TRList.size();i++){
 				
-				List<String> tdStrs=table2.xpath("//tr["+(i+1)+"]/td").all();
+				line=StringUtil.html2text(keyList.get(ii));
+				lines=line.split("：");
 				
-				if(tdStrs.size()==2){
+				if(lines.length!=2) continue;
+				
+				keyStr=lines[0];
+				valueStr= lines[1];
+				
+				logger.debug(keyStr+":"+valueStr);
+				if(!(valueStr==null||keyStr==null)){
 					
-					propsMap.put(clearHtml(tdStrs.get(0)), clearHtml(tdStrs.get(1)));
-					
-				}else if(tdStrs.size()==4){
-					propsMap.put(clearHtml(tdStrs.get(0)), clearHtml(tdStrs.get(1)));
-					propsMap.put(clearHtml(tdStrs.get(2)), clearHtml(tdStrs.get(3)));
+					if(keyStr.trim().length()>0&&valueStr.trim().length()>0)
+						propsMap.put(keyStr, valueStr);	
 				}
 			}
 			
 			salary=propsMap.get("职位月薪");
 			if(salary==null)salary="";
 			
-			String jobDesc=pageHtml.$("div.terminalpage-content").toString();
+			List<String> textList= pageHtml.xpath("//div[@class='tab-cont-box']/div[@class='tab-inner-cont']").all();
 			
-			String companyDesc=pageHtml.xpath("//div[@class='terminalpage-content clearfix']").toString();
+			String jobDesc=textList.get(0);
+			String companyDesc=textList.get(1);
 			
 			//save 
 			page.putField("jobTitle", title.trim());
@@ -131,7 +129,10 @@ public Site site = Site.me().setRetryTimes(3).setSleepTime(3000);
 		}        
         //分页、列表
          page.addTargetRequests(pageRefLinks.regex("http://[\\w,\\/-_]+.zhaopin.com/[\\w,\\/.-?&_]+").all());
-        
+		//page.addTargetRequests(pageRefLinks.regex(regEx).all());
+		//page.addTargetRequests(pageRefLinks.regex("http://sou.zhaopin.com/[\\w,\\/.-?&_]+").all());
+		
+		
 		synchronized (doneLinks) {   
         	doneLinks.put(pageUrl, doneNum++);
         	SpiderRecord.addKeyNum("Zhaopin_all", doneNum);

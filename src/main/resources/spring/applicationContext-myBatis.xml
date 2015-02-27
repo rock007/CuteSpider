@@ -5,7 +5,7 @@
       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
+        <property name="dataSource" ref="sqlServerDataSource" />
     </bean>
 
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
@@ -38,6 +38,44 @@
   		<property name="validationQuery">
    			<value>select 1 from dual</value>
   		</property>
+    </bean>
+    
+    <bean id="azureServerDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://z7rkd56ati.database.chinacloudapi.cn:1433;database=workspace;"/>
+        <property name="username" value="db@z7rkd56ati"/>
+        <property name="password" value="!QAZ2wsx#EDC1234"/>
+        <property name="initialSize" value="5"/>
+        <property name="minIdle" value="5"/>
+        <property name="maxIdle" value="20"/>
+        <property name="maxActive" value="100"/>
+        <property name="maxWait" value="1000"/>
+        <property name="defaultAutoCommit" value="false"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="600"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="numTestsPerEvictionRun" value="20"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+    </bean>
+         
+    <bean id="sqlServerDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://SPRING-PC\\SQLEXPRESS:1433;database=myjob;"/>
+        <property name="username" value="sa"/>
+        <property name="password" value="123456"/>
+        <property name="initialSize" value="5"/>
+        <property name="minIdle" value="5"/>
+        <property name="maxIdle" value="20"/>
+        <property name="maxActive" value="100"/>
+        <property name="maxWait" value="1000"/>
+        <property name="defaultAutoCommit" value="false"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="600"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="numTestsPerEvictionRun" value="20"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
     </bean>
     
  </beans>

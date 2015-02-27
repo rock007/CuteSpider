@@ -35,6 +35,10 @@ public class SpiderManager {
     @Autowired
     private SavePipeline savePipeline;
     
+    @Qualifier("savePipeline4wb")
+    @Autowired
+    private SavePipeline4wb savePipeline4wb;
+    
     @Resource
     private FetchLogDao fetchLogDao;
     
@@ -67,7 +71,7 @@ public class SpiderManager {
 			}
 			
 			//oneSpider.addPipeline(new ConsolePipeline());
-			oneSpider.addPipeline(savePipeline);
+			oneSpider.addPipeline(savePipeline4wb);
 			oneSpider.thread(perSpiderNum);
 	        //启动爬虫
 			oneSpider.start();

@@ -5,18 +5,21 @@ import java.util.List;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectKey;
+import org.apache.ibatis.mapping.StatementType;
 
 import com.search.db.model.Prop;
 
 public interface PropDao {
 
-    @Insert(" INSERT INTO `b_job_prop`(`pid`,`sourceId`,`key`,`value`) "+
+    @Insert(" INSERT INTO b_job_prop(sourceId,[key],[value]) "+
     		" VALUES( "+
-    			" #{pid},#{sourceId},#{key},#{value} "+
+    			" #{sourceId},#{key},#{value} "+
     		" ) ")
-    @Options(useGeneratedKeys = true, keyProperty = "pid")
+    //@Options(useGeneratedKeys = true, keyProperty = "pid" )
+    @SelectKey(before=false,keyProperty="pid",resultType=Integer.class,statementType=StatementType.STATEMENT,statement="select @@IDENTITY as id")
     public int add(Prop m);
     
-    @Select(" select * from  `b_job_prop` where sourceId=#{sourceId}")
+    @Select(" select * from  b_job_prop where sourceId=#{sourceId}")
     public List<Prop> getPropListBySourceId(int sourceId);
 }

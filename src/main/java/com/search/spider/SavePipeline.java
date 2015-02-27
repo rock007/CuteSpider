@@ -84,8 +84,12 @@ public class SavePipeline implements  Pipeline{
 		m.setUpdateDate(StringUtil.Date2String());
 		m.setUrl((String)resultItems.get("url"));
 		
-		int jid= jobDao.add(m);
-		
+		if(jobDao.add(m)!=1) {
+			
+			logger.debug(url+":职位插入数据库失败！跳过");
+			return;
+		}
+		int jid= m.getJid();
 		HashMap<String,String> propsMap =resultItems.get("props");
 		
 		if(jid>0&&propsMap.size()>0){

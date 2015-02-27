@@ -60,8 +60,9 @@ public class SpiderLiepinProcessor implements PageProcessor{
 			}
 		}
 		
-		Selectable mainSel=pageHtml.css(".main > .main-view ");
+		Selectable mainSel=pageHtml.css(".main > .title ");
 		String title=mainSel.xpath("//h1/text()").toString();
+		String companyName=mainSel.xpath("//h3/text()").toString();
 		
 		if(mainSel!=null&&title!=null){
 			
@@ -75,11 +76,11 @@ public class SpiderLiepinProcessor implements PageProcessor{
 			}
 			page.putField("keyword", keywordStr);
 			
-			Selectable companySel= mainSel.xpath("//div[@class='job-title']");
+			//Selectable companySel= mainSel.xpath("//div[@class='job-title']");
 			
-			page.putField("company", companySel.xpath("//p[1]/a/text()").toString());
+			page.putField("company", companyName);
 			//职位年薪
-			page.putField("salary",companySel.xpath("//p[2]/strong[2]/text()").toString());
+			page.putField("salary",mainSel.xpath("//p[@class='job-main-title']/text()").toString());
 			
 			HashMap<String,String> propsMap=new HashMap<String,String>();
 			List<String> keyList= mainSel.$(" ul >li").all();
@@ -93,6 +94,23 @@ public class SpiderLiepinProcessor implements PageProcessor{
 					propsMap.put(poros[0].trim(), poros[1].trim());	
 				}
 			}
+			
+			//公司
+			Selectable sideSel=pageHtml.css(".side");
+			String companyProps=sideSel.xpath("//div[@class='content content-word']").toString();		
+			String line=StringUtil.html2text(companyProps);
+			
+			String lines[]=line.split(" ");
+			
+			propsMap.put(lines[0].trim(), lines[1].trim());
+			for(int i=2;i<lines.length;i++) {
+				
+				String temp[]=lines[i].split("：");
+				if(temp.length==2) {
+					propsMap.put(temp[0].trim(), temp[1].trim());
+				}
+			}
+			
 			page.putField("props", propsMap);
 			//职位描述
 			String descr=mainSel.xpath("//div[@class='content content-word']").all().get(0).toString();

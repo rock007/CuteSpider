@@ -15,7 +15,10 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.pipeline.ConsolePipeline;
 
 public class SpiderDemo {
-    
+    /**
+     * 智联  http://sou.zhaopin.com/Jobs/searchresult.ashx?jl=%E9%BB%84%E7%9F%B3&sm=0&p=1&sf=0
+     * 无忧    http://search.51job.com/jobsearch/search_result.php?fromJs=1&jobarea=180400&funtype=0000&industrytype=00&issuedate=9&providesalary=99&keywordtype=2&lang=c&stype=2&workyear=99&cotype=99&degreefrom=99&jobterm=01&companysize=99&fromType=1
+     * */
     public static void main(String[] args) {
     	
     	//System.setProperty("javax.net.ssl.trustStore", "/Users/fuhe-apple-02/Documents/workspace-sts-3.4.0.RELEASE/CuteSpider/jssecacerts");
