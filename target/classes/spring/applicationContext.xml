@@ -19,32 +19,33 @@
   		<constructor-arg>
    		<map> 
     		<!-- 
+    		<entry key="Zhaopin" value="http://jobs.zhaopin.com/431575611250709.htm?ssidkey=y&amp;ss=201&amp;ff=03" /> 
+    		-->
+
+			<entry key="Lagou" value="http://www.lagou.com/" />
     		<entry key="Liepin" value="http://www.liepin.com/zhaopin/" />
-    		<entry key="Lagou" value="http://www.lagou.com/" />
-    		<entry key="Zhaopin" value="http://top.zhaopin.com/?cityid=538" />
-    		 -->
-    		<entry key="51job" value="http://search.51job.com/list/020000,020100,0000,00,9,99,%2B,2,1.html
-    								&#x000A;http://search.51job.com/list/010000,010100,0000,00,9,99,%2B,2,1.html">
-    		
+    		<entry key="51job" value="http://search.51job.com/jobsearch/search_result.php?fromJs=1&amp;jobarea=180400&amp;funtype=0000&amp;industrytype=00&amp;issuedate=9&amp;providesalary=99&amp;keywordtype=2&amp;lang=c&amp;stype=2&amp;workyear=99&amp;cotype=99&amp;degreefrom=99&amp;jobterm=01&amp;companysize=99&amp;fromType=1">
     		</entry>
+    		<entry key="Zhaopin" value="http://sou.zhaopin.com/Jobs/searchresult.ashx?jl=%E9%BB%84%E7%9F%B3&amp;sm=0&amp;p=1&amp;sf=0" /> 
+    		
    		</map>
   		</constructor-arg>
  	</bean>
     
-    <bean name="jobIndexFile" class="com.search.lucence.JobIndexFile">
-    	<property name="indexDir" value="/Users/fuhe-apple-02/temp/index"></property>
-    </bean>
-    
     <bean name="spiderManager" class="com.search.spider.SpiderManager">
-    	<property name="perSpiderNum" value="10"></property>
-    	
+    	<property name="perSpiderNum" value="1"></property>
     	<property name="spiderSet">
     	 	<ref local="spiderSetMap" />
     	</property>
     </bean>
-    
-    <bean id="indexSearch" class="com.search.lucence.IndexSearch">
-    	<constructor-arg name="indexDir" value="/Users/fuhe-apple-02/temp/index"></constructor-arg>
+
+<!--
+    <bean name="jobIndexFile" class="com.search.lucence.JobIndexFile">
+    	<property name="indexDir" value="D:\temp\index"></property>
     </bean>
-    
+        
+    <bean id="indexSearch" class="com.search.lucence.IndexSearch">
+    	<constructor-arg name="indexDir" value="D:\temp\index"></constructor-arg>
+    </bean>
+      -->
 </beans>
